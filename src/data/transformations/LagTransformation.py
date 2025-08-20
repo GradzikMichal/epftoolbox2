@@ -14,7 +14,7 @@ class LagTransformation:
         new_columns = {}
         for column in self.columns:
             for lag in self.lags:
-                lagged_column_name = f"{column}_{self.type}{'-' if lag >=0 else '+'}{abs(lag)}"
+                lagged_column_name = f"{column}_{"d" if self.type == 'day' else 'h'}{'-' if lag >=0 else '+'}{abs(lag)}"
                 shift_amount = lag * (24 if self.type == 'day' else 1)
                 new_columns[lagged_column_name] = data[column].shift(shift_amount)
         
