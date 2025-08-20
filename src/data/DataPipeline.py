@@ -14,8 +14,8 @@ class DataPipeline:
         self.transformations.append(transformation)
         
     def execute(self, cache = False) -> pd.DataFrame:
-        if cache and pd.io.common.file_exists(f'{cache if (type(cache) is "str") else "cache"}.csv'):
-            return pd.read_csv(f'{cache if (type(cache) is "str") else "cache"}.csv', index_col=0)
+        if cache and pd.io.common.file_exists(f'{cache if (type(cache) is str) else "cache"}.csv'):
+            return pd.read_csv(f'{cache if (type(cache) is str) else "cache"}.csv', index_col=0)
 
         merged = pd.DataFrame()
         for source in self.sources:
@@ -26,6 +26,6 @@ class DataPipeline:
             merged = transformation.transform(merged)
         
         if cache:
-            merged.to_csv(f'{cache if (type(cache) is "str") else "cache"}.csv')
+            merged.to_csv(f'{cache if (type(cache) is str) else "cache"}.csv')
             
         return merged
