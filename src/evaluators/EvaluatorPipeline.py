@@ -41,7 +41,6 @@ class EvaluatorPipeline:
                     evaluator.save_to_sheet(writer, model_results)
 
             print(f"[green]Successfully saved all results to {output_filepath}")
-
         except Exception as e:
             print(f"[red]An error occurred while saving the Excel file: {e}")
 
@@ -55,7 +54,7 @@ class EvaluatorPipeline:
         for model in self.models:
             model_name = model.name
             info_data.append({'Parameter': '---', 'Value': f'--- {model_name} ---'})
-            info_data.append({'Parameter': 'Predictors', 'Value': str(model.predictors)})
+            info_data.append({'Parameter': 'Predictors', 'Value': str(model.scalablePredictors)+str(model.otherPredictors)})
             model_params = model.modelParams
             for key, val in model_params.items():
                 info_data.append({'Parameter': key, 'Value': str(val)})

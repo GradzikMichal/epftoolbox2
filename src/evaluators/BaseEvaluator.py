@@ -4,7 +4,8 @@ from rich import print
 
 class BaseEvaluator(ABC):
     def __init__(self, name='Evaluator'):
-        self.name = name
+        self.name = name[:31] #excelmlimit
+        
         
     @abstractmethod
     def evaluate(self, data):

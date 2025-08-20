@@ -12,3 +12,5 @@ wheels/
 test.csv
 data.csv
 cache.csv
+data_cache.csv
+results/**
