@@ -1,0 +1,18 @@
+[project]
+name = "epf-toolbox-2"
+version = "0.1.0"
+description = "Open source toolbox for energy market data and forecasting. Very much in progress."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pandas>=2.2.3",
+    "python-dateutil>=2.9.0.post0",
+    "requests>=2.32.3",
+    "entsoe-py>=0.7.1",
+    "rich>=14.1.0",
+    "holidays>=0.78",
+    "scikit-learn>=1.7.1",
+    "matplotlib>=3.10.5",
+    "jinja2>=3.1.6",
+    "openpyxl>=3.1.5",
+]
