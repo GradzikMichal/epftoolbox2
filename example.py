@@ -13,7 +13,7 @@ from src.evaluators.EvaluatorPipeline import EvaluatorPipeline
 if __name__ == "__main__":
     pipeline = DataPipeline("2023-07-01","2025-08-20")
     
-    pipeline.add_source(EntsoeSource("PL","fade2e5f-6d62-4354-9f95-e8629acec0e9"))
+    pipeline.add_source(EntsoeSource("PL","API_KEY"))
     pipeline.add_source(OpenMeteoSource(52.2298,21.0118, columns=["temperature_2m", "precipitation","cloud_cover"], horizon=1))
     pipeline.add_source(CalendarSource("PL"))
     

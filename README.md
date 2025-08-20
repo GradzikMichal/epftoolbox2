@@ -25,7 +25,7 @@ data = entsoe_source.fetch("2023-01-01", "2025-01-07")
 As output you get columns: datetime,load,price. You can get prices as far as now+1, becouse of the day ahead prices mechanics of the energy markets.
 ### OpenMeteo Source
 ```python
-from src.data.sources.EntsoeSource import OpenMeteoSource
+from src.data.sources.OpenMeteoSource import OpenMeteoSource
 openmeteo_source = OpenMeteoSource(52.2298,21.0118)
 data = openmeteo_source.fetch("2023-01-01", "2025-01-07")
 ```
@@ -33,7 +33,7 @@ As output by default you get columns: datetime,temperature_2m,rain,showers,snowf
 In params you gen specify the horizon (7 days by default), used model (JMA by default) and columns. 
 ### Calendar Source
 ```python
-from src.data.sources.EntsoeSource import CalendarSource
+from src.data.sources.CalendarSource import CalendarSource
 calendar_source = CalendarSource("PL")
 data = calendar_source.fetch("2023-01-01", "2025-01-07")
 ```
