@@ -22,9 +22,10 @@ class OpenMeteoSource():
         "wind_direction_10m"
         ]
     
-    def __init__(self,latitude: float, longitude: float,horizon:int=7,model:str="jma_seamless",columns=[]):
+    def __init__(self,latitude: float, longitude: float,horizon:int=7,model:str="jma_seamless",columns=[],prefix=""):
         self.latitude = latitude
         self.longitude = longitude
+        self.prefix = prefix
         self.horizon = horizon
         self.model = model
         self.columns = columns if columns else self.columns
@@ -93,6 +94,9 @@ class OpenMeteoSource():
         weather = pd.DataFrame.from_dict(weather, orient='index')
         weather.index.name = "datetime"
         weather.index = pd.to_datetime(weather.index).tz_localize('UTC')
+        if self.prefix:
+            weather.columns = [f"{self.prefix}_{col}" for col in weather.columns]
+
 
         self.progress.update(task)
         self.progress.console.log("[green]Open Meteo downloaded successfully")

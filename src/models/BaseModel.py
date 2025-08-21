@@ -97,7 +97,8 @@ class BaseModel(ABC):
             if callable(predictor):
                 processedPredictors.append(predictor(run))
             else:
-                processedPredictors.append(predictor)
+                processedPredictors.append(predictor.replace("{horizon}", str(horizon)))
+        
         return processedPredictors
 
     

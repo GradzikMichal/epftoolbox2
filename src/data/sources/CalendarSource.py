@@ -13,7 +13,7 @@ class CalendarSource():
         self.progress = Progress()
         
         if self.holidays is not None:
-            self.country_holidays = holidaysLib.CountryHoliday(self.country_code)
+            self.country_holidays = holidaysLib.country_holidays(self.country_code)
 
 
     def fetch(self, start_date, end_date) -> pd.DataFrame:

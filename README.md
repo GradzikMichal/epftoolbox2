@@ -1,5 +1,5 @@
 # epf-toolbox-2
-Open source toolbox for energy market data and forecasting. Very much in progress.
+Open source toolbox for energy market data and forecasting. Very much in progress. Based on idea of https://github.com/jeslago/epftoolbox
 
 # Overall concept
 You have building blocks for sources, transformations, models and evaluators. You can use them in standalone mode to play with the individual aspects or you can use pipelines to combine multiple sources transformations, models and evaluators to achive standarized workflow. 
