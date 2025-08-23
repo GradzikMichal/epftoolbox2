@@ -15,6 +15,7 @@ class CalendarSource():
         if self.holidays is not None:
             self.country_holidays = holidaysLib.country_holidays(self.country_code)
 
+    weekly_dummies = ['is_monday', 'is_tuesday', 'is_wednesday', 'is_thursday', 'is_friday', 'is_saturday', 'is_sunday','is_holiday']
 
     def fetch(self, start_date, end_date) -> pd.DataFrame:
         self.progress.start()
