@@ -4,10 +4,10 @@ from .BaseModel import BaseModel
 
 
 class LassoModel(BaseModel):
-    def one(self, trainX, trainY, testX):
-        model = linear_model.LassoCV(**self.modelParams)
+    @staticmethod
+    def one(trainX, trainY, testX, **context):
+        model = linear_model.LassoCV(**context['modelParams'])
         model.fit(trainX, trainY.values.ravel())
         prediction = model.predict(testX)
-        prediction = self.scaler.inverse(prediction)
-        return prediction, model.coef_
+        return prediction, model.coef_.tolist()
 

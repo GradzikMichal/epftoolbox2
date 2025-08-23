@@ -4,10 +4,12 @@ class StandardScaler:
         pass
     
     def transform(self, train, test, predictors,target):
+        dummy_columns = [col for col in predictors if train[col].nunique() == 2]
+        numeric_columns = [col for col in predictors if (col not in dummy_columns) and (col != target)]
         scaler = StandardScalerSklearn()
-        train[predictors] = scaler.fit_transform(train[predictors])
-        test[predictors] = scaler.transform(test[predictors])
-        
+        train[numeric_columns] = scaler.fit_transform(train[numeric_columns])
+        test[numeric_columns] = scaler.transform(test[numeric_columns])
+
         self.scaler = StandardScalerSklearn()
         train.loc[:, target] = self.scaler.fit_transform(train[[target]])
         return test, train

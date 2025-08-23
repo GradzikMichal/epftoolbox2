@@ -1,8 +1,10 @@
+import os
 import pandas as pd
 from rich import print
+import glob
 
 class EvaluatorPipeline:
-    def __init__(self, horizon, data, testPeriodStart, testPeriodEnd):
+    def __init__(self, data, testPeriodStart, testPeriodEnd,horizon=1):
         self.horizon = horizon
         self.data = data
         self.testPeriodStart = testPeriodStart
@@ -12,6 +14,10 @@ class EvaluatorPipeline:
 
     def add_model(self, model):
         self.models.append(model)
+        
+    def clear_cache(self):
+        for file in glob.glob('./results/*'):
+            os.remove(file)
 
     def add_evaluator(self, evaluator):
         self.evaluators.append(evaluator)
@@ -54,7 +60,13 @@ class EvaluatorPipeline:
         for model in self.models:
             model_name = model.name
             info_data.append({'Parameter': '---', 'Value': f'--- {model_name} ---'})
-            info_data.append({'Parameter': 'Predictors', 'Value': str(model.scalablePredictors)+str(model.otherPredictors)})
+            info_data.append({'Parameter': 'Predictors', 'Value': str(model.processColumns(model.predictors,{
+                        "hour": 0,
+                        "dayInTestingPeriod": 0,
+                        "datasetOffset": 0,
+                        "horizon": 0,
+                        "trainingWindow": 0,
+                    }))})
             model_params = model.modelParams
             for key, val in model_params.items():
                 info_data.append({'Parameter': key, 'Value': str(val)})
