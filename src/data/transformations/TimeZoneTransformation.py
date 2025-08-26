@@ -17,11 +17,12 @@ class TimeZoneTransformation:
             data['gmt_offset'] = data.index.map(lambda x: int(x.utcoffset().total_seconds() / 3600))
             
         data.index = pd.to_datetime(data.index.strftime('%Y-%m-%d %H:%M'))
-        data = data.resample('h') 
+        if self.interpolation !=None:
+            data = data.resample('h') 
         
         if self.interpolation=="linear":
             data = data.mean().interpolate(method='linear')
-        else:
+        elif self.interpolation=="first":
             data = data.first().ffill()
             
         data = data.round(2)
