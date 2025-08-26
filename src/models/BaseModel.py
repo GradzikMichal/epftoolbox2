@@ -20,24 +20,22 @@ class BaseModel(ABC):
     def __init__(
         self,
         predictors=[],
-        target="load",
         name="Model Name",
         trainingWindow=28,
         modelParams={},
         saveToFile=None,
     ):
         self.predictors = predictors
-        self.target = target
         self.trainingWindow = trainingWindow
         self.modelParams = modelParams
         self.saveToFile = saveToFile
         self.name = name
         self.scaler = StandardScaler()
 
-    def preprocess(self, data, horizon):
+    def preprocess(self, data, horizon, target):
         data = data.copy()
         for i in range(1, horizon + 1):
-            data[f"{self.target}_d+{i}"] = data[self.target].shift(-24 * i)
+            data[f"{target}_d+{i}"] = data[target].shift(-24 * i)
         data["numeric_index"] = np.arange(1, len(data) + 1)
         data.index = pd.to_datetime(data.index)
         data["hour"] = data.index.hour
@@ -45,7 +43,7 @@ class BaseModel(ABC):
         data["day"] = data["numeric_index"] // 24
         return data
 
-    def run(self, horizon, data, testPeriodStart, testPeriodEnd):
+    def run(self, horizon, data, testPeriodStart, testPeriodEnd, target="load"):
         if self.saveToFile and os.path.exists(f"./results/{self.saveToFile}"):
             os.makedirs("./results", exist_ok=True)
             print(f"[yellow]Loading model results from file {self.saveToFile}")
@@ -77,8 +75,8 @@ class BaseModel(ABC):
                         "trainingWindow": self.trainingWindow,
                         "modelParams": self.modelParams,
                     }
+                    context["target"]=f"{target}_d+{currentHorizon}"
                     context["predictors"]=self.processColumns(self.predictors,context)
-                    context["target"]=f"{self.target}_d+{currentHorizon}"
                     inMemoryData = {
                         "pointer": shm.name,
                         "shape": shape,

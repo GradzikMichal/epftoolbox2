@@ -4,10 +4,11 @@ from rich import print
 import glob
 
 class EvaluatorPipeline:
-    def __init__(self, data, testPeriodStart, testPeriodEnd,horizon=1):
+    def __init__(self, data, testPeriodStart, testPeriodEnd, target="load", horizon=1):
         self.horizon = horizon
         self.data = data
         self.testPeriodStart = testPeriodStart
+        self.target = target
         self.testPeriodEnd = testPeriodEnd
         self.models = []
         self.evaluators = []
@@ -26,7 +27,7 @@ class EvaluatorPipeline:
 
         print("[dim]Running all models.")
         model_outputs = {
-            model.name: model.run(self.horizon, self.data, self.testPeriodStart, self.testPeriodEnd)
+            model.name: model.run(self.horizon, self.data, self.testPeriodStart, self.testPeriodEnd, self.target)
             for model in self.models
         }
         print("[dim]Model runs complete.")

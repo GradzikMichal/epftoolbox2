@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     data = pipeline.execute("example_dataset")  # if you don't want cache just remove the cache key or remove the example_cache.csv file
 
-    pipeline = EvaluatorPipeline(data, "2024-08-01", "2025-08-01", horizon=7)
+    pipeline = EvaluatorPipeline(data, "2024-08-01", "2025-08-01", "load", horizon=7)
     
     predictorsAR =  [
         "load",
