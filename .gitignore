@@ -18,3 +18,9 @@ results/**
 **/__pycache__/**
 gui.py
 wls.py
+dts.py
+dts2.py
+example_results_34.xlsx
+example_results.xlsx
+gmt.csv
+utc.csv

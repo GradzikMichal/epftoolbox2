@@ -5,10 +5,12 @@ from rich.progress import Progress
 
 class CalendarTransformation():
 
-    def __init__(self, country_code: str, weekly_dummies: Optional[str] = 'one-hot', holidays: Optional[str] = 'exists'):
+    def __init__(self, country_code: str, weekly_dummies: Optional[str] = 'one-hot', monthly_dummies: Optional[str] = None,quarterly_dummies: Optional[str] = None, holidays: Optional[str] = 'exists'):
 
         self.country_code = country_code
         self.weekly_dummies = weekly_dummies
+        self.monthly_dummies = monthly_dummies
+        self.quarterly_dummies = quarterly_dummies
         self.holidays = holidays
         self.progress = Progress()
         
@@ -31,6 +33,28 @@ class CalendarTransformation():
                 data['weekday'] = data.index.day_name()
             elif self.weekly_dummies == 'number':
                 data['weekday'] = data.index.dayofweek + 1
+
+        if self.monthly_dummies is not None:
+            self.progress.console.log("[dim]Processing monthly dummies")
+            if self.monthly_dummies == 'one-hot':
+                months = ['is_january', 'is_february', 'is_march', 'is_april', 'is_may', 'is_june', 'is_july', 'is_august', 'is_september', 'is_october', 'is_november', 'is_december']
+                for i, month_name in enumerate(months):
+                    data[month_name] = (data.index.month == i + 1).astype(int)
+            elif self.monthly_dummies == 'list':
+                data['month'] = data.index.month_name()
+            elif self.monthly_dummies == 'number':
+                data['month'] = data.index.month
+
+        if self.quarterly_dummies is not None:
+            self.progress.console.log("[dim]Processing quarterly dummies")
+            if self.quarterly_dummies == 'one-hot':
+                quarters = ['is_q1', 'is_q2', 'is_q3', 'is_q4']
+                for i, quarter_name in enumerate(quarters):
+                    data[quarter_name] = (data.index.quarter == i + 1).astype(int)
+            elif self.quarterly_dummies == 'list':
+                data['quarter'] = data.index.quarter
+            elif self.quarterly_dummies == 'number':
+                data['quarter'] = data.index.quarter
 
         self.progress.update(task,advance=1)
 
