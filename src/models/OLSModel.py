@@ -7,5 +7,5 @@ class OLSModel(BaseModel):
         model = linear_model.LinearRegression(**{"fit_intercept": False, **context['modelParams']})
         model.fit(trainX, trainY)
         prediction = model.predict(testX)
-        return prediction, model.coef_.tolist()
+        return prediction, model.coef_.tolist()[0]
       

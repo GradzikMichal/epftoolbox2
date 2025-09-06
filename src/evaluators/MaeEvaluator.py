@@ -8,9 +8,9 @@ class MaeEvaluator(BaseEvaluator):
         super().__init__(name)
         self.type = type
 
-    def append_metrics_to_df(self, base_df):
+    def append_metrics_to_df(self, base_df, model_outputs=None):
         if base_df.empty:
-            print(f"[yellow]'{self.name}' received an empty DataFrame. Skipping.")
+            print(f"[yellow]'{self.name}' received an empty DataFrame. Skipping.[/yellow]")
             return base_df
 
         print(f"[dim]Appending metrics from '{self.name}'...")
@@ -20,7 +20,7 @@ class MaeEvaluator(BaseEvaluator):
                 base_df[f'mae_{model_name}'] = (base_df[col] - base_df['value']).abs()
         
         return base_df
-
+    
     def evaluate(self, data):
         if self.type == 'all':
             return self._evaluate_all(data)

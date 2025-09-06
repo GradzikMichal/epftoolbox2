@@ -42,9 +42,9 @@ class EvaluatorPipeline:
                 if not details_df.empty:
                     for evaluator in self.evaluators:
                         if evaluator.type == 'details':
-                            details_df = evaluator.append_metrics_to_df(details_df)
+                            details_df = evaluator.append_metrics_to_df(details_df, model_outputs)
                     
-                    details_df.to_excel(writer, sheet_name="Detailed_Comparison", index=False, float_format="%.2f")
+                    details_df.to_excel(writer, sheet_name="Detailed_Comparison", index=False, float_format="%.4f")
                     print("[green]Successfully created combined comparison sheet: 'Detailed_Comparison'")
                 else:
                     print("[yellow]Skipping details sheet generation as no model data was found.")
@@ -70,12 +70,9 @@ class EvaluatorPipeline:
             df.rename(columns={'prediction': f'prediction_{model_name}'}, inplace=True)
             df.set_index(['datetime', 'hour', 'horizon', 'value'], inplace=True)
             all_model_dfs.append(df[[f'prediction_{model_name}']])
-        
         if not all_model_dfs: return pd.DataFrame()
-
         combined_df = pd.concat(all_model_dfs, axis=1).reset_index()
         combined_df['date'] = combined_df['datetime'].dt.date
-        
         model_pred_cols = sorted([col for col in combined_df.columns if col.startswith('prediction_')])
         final_columns = ['datetime', 'date', 'hour', 'horizon', 'value'] + model_pred_cols
         return combined_df[final_columns]
