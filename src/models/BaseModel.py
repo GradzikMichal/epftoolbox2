@@ -29,6 +29,8 @@ class BaseModel(ABC):
         self.name = name
         self.scaler = StandardScaler()
 
+    internalParams = {}
+    
     def preprocess(self, data, horizon, target):
         data = data.copy()
         for i in range(1, horizon + 1):
@@ -71,6 +73,7 @@ class BaseModel(ABC):
                         "horizon": currentHorizon,
                         "trainingWindow": self.trainingWindow,
                         "modelParams": self.modelParams,
+                        "internalParams": self.internalParams
                     }
                     context["target"]=f"{target}_d+{currentHorizon}"
                     context["predictors"]=self.processColumns(self.predictors,context)
@@ -82,6 +85,7 @@ class BaseModel(ABC):
                         "columns": data.columns,
                     }
                     tasks.append((context, inMemoryData, self.one, self.scaler))
+                    # results.append(ModelWorker.worker((context, inMemoryData, self.one, self.scaler)))
                     
         processes = int(os.environ.get("MAX_THREADS") or mp.cpu_count())
         with mp.Pool(processes = processes) as pool:

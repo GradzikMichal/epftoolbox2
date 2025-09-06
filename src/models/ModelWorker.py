@@ -17,6 +17,7 @@ class ModelWorker:
         prediction, params = model(trainX, trainY, testX, **context)
         prediction = scaler.inverse(prediction)
         sharedMemory.close()
+        del context['internalParams']
         return  {
             "date": str(np.datetime_as_string(test.index.values[0], unit='D')),
             **context,
