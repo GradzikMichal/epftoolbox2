@@ -1,3 +1,7 @@
+import os
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
 from ..scalers.StandardScaler import StandardScaler
 import numpy as np
 import pandas as pd
@@ -5,14 +9,9 @@ import multiprocessing as mp
 from multiprocessing import shared_memory
 from rich.progress import track
 from rich import print
-import os
 from abc import ABC, abstractmethod
 from .ModelWorker import ModelWorker
 import json
-
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-os.environ["OMP_NUM_THREADS"] = "1"
 
 class BaseModel(ABC):
     def __init__(
