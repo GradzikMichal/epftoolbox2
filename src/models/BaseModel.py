@@ -1,5 +1,3 @@
-import time
-from unittest import result
 from ..scalers.StandardScaler import StandardScaler
 import numpy as np
 import pandas as pd
@@ -50,7 +48,7 @@ class BaseModel(ABC):
             with open(f"./results/{self.saveToFile}", "r") as f:
                 return json.load(f)
             
-        data = self.preprocess(data, horizon)
+        data = self.preprocess(data, horizon, target)
 
         datasetOffset = int(data.loc[testPeriodStart, "day"].values[0])
         testingWindow = int(data.loc[testPeriodEnd, "day"].values[0])
