@@ -35,18 +35,15 @@ class CoefsEvaluator(BaseEvaluator):
 
         print("[dim]   -> Creating a single comprehensive coefficient DataFrame...")
         all_coefs_df = pd.DataFrame(all_coef_rows)
-
         all_coefs_df = all_coefs_df.groupby('datetime').first().reset_index()
 
         print("[dim]   -> Merging coefficients into the main details table...")
         base_df['datetime'] = pd.to_datetime(base_df['datetime'])
-        
         final_df = pd.merge(base_df, all_coefs_df, on='datetime', how='left')
         
         return final_df
 
     def evaluate(self, data):
-        """Prepares aggregated coefficient DataFrames using a robust 'long' format."""
         if not data: return pd.DataFrame()
 
         long_format_df = self._flatten_to_long_format(data)
@@ -61,13 +58,11 @@ class CoefsEvaluator(BaseEvaluator):
         return pd.DataFrame()
 
     def save_to_sheet(self, writer, model_results_dict):
-        """Saves aggregated coefficient reports to Excel with separators and improved styling."""
         all_dfs = []
-        model_names = list(model_results_dict.keys())
+        model_names = [name for name, df in model_results_dict.items() if not df.empty]
         
         for i, model_name in enumerate(model_names):
             result_df = model_results_dict[model_name]
-            if result_df.empty: continue
             
             result_df.columns = pd.MultiIndex.from_product([[model_name], result_df.columns])
             all_dfs.append(result_df)
@@ -82,16 +77,17 @@ class CoefsEvaluator(BaseEvaluator):
             return
 
         combined_df = pd.concat(all_dfs, axis=1)
-        
-        styler = combined_df.style.background_gradient(cmap='viridis', axis=None)
+
+        styler = combined_df.style
+
+        for model_name in model_names:
+            subset = pd.IndexSlice[:, model_name]
+            styler = styler.background_gradient(cmap='viridis', subset=subset, axis=None)
 
         styler.to_excel(writer, sheet_name=self.name, float_format="%.4f")
-        print(f"[dim]Sheet '{self.name}' (Styled with separators) created.")
+        print(f"[dim]Sheet '{self.name}' created.")
 
     def _get_validated_coefs(self, item):
-        """
-        A robust helper that handles multiple coefficient formats.
-        """
         predictors = item.get('predictors')
         coefs = item.get('coefs')
 
@@ -112,7 +108,6 @@ class CoefsEvaluator(BaseEvaluator):
         return predictors, coef_values
 
     def _flatten_to_long_format(self, data):
-        """Converts raw model output into a robust "long" DataFrame."""
         flat_data = []
         for item in data:
             predictors, coef_values = self._get_validated_coefs(item)
