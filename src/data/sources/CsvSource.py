@@ -11,4 +11,4 @@ class CsvSource():
     def fetch(self, start_date, end_date) -> pd.DataFrame:
         data = pd.read_csv(self.path)
         data.index=pd.to_datetime(data[self.index])
-        return data[start_date:end_date,:]
+        return data.loc[start_date:end_date,:]
