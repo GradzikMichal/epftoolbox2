@@ -1,5 +1,6 @@
 from sklearn import linear_model
 from .BaseModel import BaseModel
+import matplotlib.pyplot as plt
 
 def basicWeightFunction(context,trainX,testX):
     return [1]*len(trainX)
@@ -18,9 +19,9 @@ class WLSModel(BaseModel):
             name=name,
             trainingWindow=trainingWindow,
             modelParams=modelParams,
-            saveToFile=saveToFile
+            saveToFile=saveToFile,
+            internalParams={'weightFunction': weightFunction}
         )
-        self.internalParams['weightFunction'] = weightFunction
         
 
     @staticmethod

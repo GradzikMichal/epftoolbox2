@@ -20,16 +20,17 @@ class BaseModel(ABC):
         name="Model Name",
         trainingWindow=28,
         modelParams={},
+        internalParams={},
         saveToFile=None,
     ):
         self.predictors = predictors
         self.trainingWindow = trainingWindow
         self.modelParams = modelParams
+        self.internalParams = internalParams
         self.saveToFile = saveToFile
         self.name = name
         self.scaler = StandardScaler()
 
-    internalParams = {}
     
     def preprocess(self, data, horizon, target):
         data = data.copy()
