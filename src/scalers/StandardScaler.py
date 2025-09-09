@@ -4,7 +4,7 @@ class StandardScaler:
         pass
     
     def transform(self, train, test, predictors,target):
-        dummy_columns = [col for col in predictors if train[col].nunique() == 2]
+        dummy_columns = [col for col in predictors if train[col].nunique() <= 2]
         numeric_columns = [col for col in predictors if (col not in dummy_columns) and (col != target)]
         scaler = StandardScalerSklearn()
         train[numeric_columns] = scaler.fit_transform(train[numeric_columns])
