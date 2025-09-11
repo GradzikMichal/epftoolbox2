@@ -2,16 +2,17 @@ import os
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
-from ..scalers.StandardScaler import StandardScaler
-import numpy as np
-import pandas as pd
-import multiprocessing as mp
-from multiprocessing import shared_memory
-from rich.progress import track
-from rich import print
-from abc import ABC, abstractmethod
-from .ModelWorker import ModelWorker
 import json
+from .ModelWorker import ModelWorker
+from abc import ABC, abstractmethod
+from rich import print
+from rich.progress import track
+from multiprocessing import shared_memory
+import multiprocessing as mp
+import pandas as pd
+import numpy as np
+from ..scalers.StandardScaler import StandardScaler
+
 
 class BaseModel(ABC):
     def __init__(
@@ -31,7 +32,6 @@ class BaseModel(ABC):
         self.name = name
         self.scaler = StandardScaler()
 
-    
     def preprocess(self, data, horizon, target):
         data = data.copy()
         for i in range(1, horizon + 1):
@@ -43,19 +43,22 @@ class BaseModel(ABC):
         data["day"] = data["numeric_index"] // 24
         return data
 
+
+    def beforeHook(self, horizon, data, testPeriodStart, testPeriodEnd, datasetOffset, testingWindow, target="load"):
+        pass
+
     def run(self, horizon, data, testPeriodStart, testPeriodEnd, target="load"):
         if self.saveToFile and os.path.exists(f"./results/{self.saveToFile}"):
             os.makedirs("./results", exist_ok=True)
             print(f"[yellow]Loading model results from file {self.saveToFile}")
             with open(f"./results/{self.saveToFile}", "r") as f:
                 return json.load(f)
-            
-        data = self.preprocess(data, horizon, target)
 
+        data = self.preprocess(data, horizon, target)
         datasetOffset = int(data.loc[testPeriodStart, "day"].values[0])
         testingWindow = int(data.loc[testPeriodEnd, "day"].values[0])
 
-        data = data.drop('utc_datetime', axis=1)
+        data = data.drop('utc_datetime', axis=1, errors='ignore')
         shape = data.shape
         dtype = data.values.dtype
         shm = shared_memory.SharedMemory(create=True, size=data.values.nbytes)
@@ -63,7 +66,10 @@ class BaseModel(ABC):
         np_array[:] = data.values[:]
 
         tasks = []
-        results=[]
+        results = []
+
+        self.beforeHook(horizon, data, testPeriodStart, testPeriodEnd, datasetOffset, testingWindow, target)
+     
         for dayInTestingPeriod in range(testingWindow - datasetOffset + 1):
             for currentHorizon in range(1, horizon + 1):
                 for hour in range(0, 24):
@@ -76,8 +82,9 @@ class BaseModel(ABC):
                         "modelParams": self.modelParams,
                         "internalParams": self.internalParams
                     }
-                    context["target"]=f"{target}_d+{currentHorizon}"
-                    context["predictors"]=self.processColumns(self.predictors,context)
+                    context["target"] = f"{target}_d+{currentHorizon}"
+                    context["predictors"] = self.processColumns(
+                        self.predictors, context)
                     inMemoryData = {
                         "pointer": shm.name,
                         "shape": shape,
@@ -85,21 +92,22 @@ class BaseModel(ABC):
                         "index": data.index,
                         "columns": data.columns,
                     }
-                    tasks.append((context, inMemoryData, self.one, self.scaler))
+                    tasks.append(
+                        (context, inMemoryData, self.one, self.scaler))
                     # results.append(ModelWorker.worker((context, inMemoryData, self.one, self.scaler)))
-                    
+
         processes = int(os.environ.get("MAX_THREADS") or mp.cpu_count())
-        with mp.Pool(processes = processes) as pool:
+        with mp.Pool(processes=processes) as pool:
             for result in track(
-                    pool.imap(ModelWorker.worker, tasks, chunksize=24*horizon),
-                    description=f"[magenta]Running model {self.name}",
-                    total=len(tasks),
-                ):
+                pool.imap(ModelWorker.worker, tasks),
+                description=f"[magenta]Running model {self.name}",
+                total=len(tasks),
+            ):
                 results.append(result)
 
         shm.close()
         shm.unlink()
-        
+
         if self.saveToFile:
             with open(f"./results/{self.saveToFile}", "w") as f:
                 json.dump(results, f)
@@ -110,7 +118,7 @@ class BaseModel(ABC):
         processedColumns = []
         if callable(columns):
             columns = columns(context)
-            
+
         for column in columns:
             if callable(column):
                 processedColumns.append(column(context))
@@ -125,5 +133,3 @@ class BaseModel(ABC):
     @abstractmethod
     def one(test, train, dayInTestingPeriod, currentHorizon, hour):
         pass
-
- 

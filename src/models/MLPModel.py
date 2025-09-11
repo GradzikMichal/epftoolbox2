@@ -5,7 +5,9 @@ from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import HalvingRandomSearchCV
 from scipy.stats import uniform
 from sklearn.base import BaseEstimator, RegressorMixin
-
+from .ModelWorker import ModelWorker
+from functools import partial
+import optuna
 #Wrapper for MLP regressor to implement committee of models
 class MLPCommittee(BaseEstimator, RegressorMixin):
     def __init__(self, n_members=5, **mlp_params):
@@ -55,7 +57,7 @@ class MLPModel(BaseModel):
         trainingWindow=28,
         modelParams={},
         committee=5,
-        CVOptimization=False,
+        hyperparamOptimization=False, #cv, number meaning calibration window
         cvCount=5,
         saveToFile=None,
     ):
@@ -65,9 +67,47 @@ class MLPModel(BaseModel):
             trainingWindow=trainingWindow,
             modelParams=modelParams,
             saveToFile=saveToFile,
-            internalParams={'committee': committee, 'CVOptimization': CVOptimization, 'cvCount': cvCount}
+            internalParams={'committee': committee, 'hyperparamOptimization': hyperparamOptimization, 'cvCount': cvCount}
         )
+
+    def beforeHook(self, horizon, data, testPeriodStart, testPeriodEnd, datasetOffset, testingWindow, target="load"):
+     
+        if type(self.internalParams.get('hyperparamOptimization'))==int:
+            study = optuna.create_study()
+            objective = partial(MLPModel.optimizationObjective,
+                                 horizon=horizon,
+                                 data=data,
+                                 testPeriodStart=data[data['day'] == datasetOffset-self.internalParams.get('hyperparamOptimization')].index[0].strftime('%Y-%m-%d'),
+                                 testPeriodEnd=testPeriodStart,
+                                 target=target,
+                                 predictors=self.predictors,
+                                 trainingWindow=self.trainingWindow,
+                                 modelParams=self.modelParams,
+                                 name=self.name
+                                 )
+            self.internalParams['hyperparamOptimization']=False
+            study.optimize(objective, n_trials=1,n_jobs=1)
+            self.modelParams = study.best_params
+            print(f"[green]Optimization complete. Best params: {study.best_params}")
         
+    @staticmethod
+    def optimizationObjective(trial, horizon, data, testPeriodStart, testPeriodEnd, target, predictors, trainingWindow, modelParams,name):
+        modelParams['hidden_layer_sizes'] = modelParams.get('hidden_layer_sizes') or trial.suggest_categorical('hidden_layer_sizes', [(5,), (10,), (5,5), (10,5), (10,10)])
+        modelParams['solver'] = modelParams.get('solver') or trial.suggest_categorical('solver', ['adam', 'sgd', 'lbfgs'])
+        modelParams['activation'] = modelParams.get('activation') or trial.suggest_categorical('activation', ['relu', 'tanh', 'logistic'])
+        modelParams['alpha'] = modelParams.get('alpha') or trial.suggest_float('alpha', 0.0001, 0.01)
+        if modelParams['solver'] == 'lbfgs':
+            modelParams['max_iter'] = modelParams.get('max_iter') or trial.suggest_categorical('max_iter', [500, 1000, 5000, 10000, 20000])
+        else:   
+            modelParams['learning_rate_init'] = modelParams.get('learning_rate_init') or trial.suggest_float('learning_rate_init', 0.001, 0.1)
+        model = MLPModel(predictors=predictors, trainingWindow=trainingWindow, name=f"{name} trial #{trial.number}", modelParams=modelParams,hyperparamOptimization=False)
+        results = model.run(horizon, data, testPeriodStart, testPeriodEnd, target)
+        errors = [abs(res['value'] - res['prediction']) for res in results]
+        return np.mean(errors)
+
+            
+
+
     @staticmethod
     def one(trainX, trainY, testX, **context):
         
@@ -76,7 +116,7 @@ class MLPModel(BaseModel):
         
         model = MLPCommittee(**initial_params)
 
-        if context['internalParams'].get('CVOptimization', False):
+        if context['internalParams'].get('hyperparamOptimization', False)=='cv':
             params = [
                 {
                     'solver': ['adam', 'sgd'],
@@ -102,13 +142,13 @@ class MLPModel(BaseModel):
             )
 
             search.fit(trainX, trainY.values.ravel())
-            best= search.best_estimator_
-            # print(best_committee.get_params())
+            best = search.best_estimator_
             prediction = best.predict(testX)
-            return prediction, best.get_params()
-        
+            return prediction, best.get_params()  
         else:
             model.fit(trainX, trainY.values.ravel())
             prediction = model.predict(testX)
+
+
         
         return prediction, model.get_params()
