@@ -2,7 +2,10 @@ import pandas as pd
 from entsoe import EntsoePandasClient
 from rich.progress import Progress
 
-class EntsoeSource():
+from src.data.sources.BaseSource import BaseSource
+
+
+class EntsoeSource(BaseSource):
 
     def __init__(self, country_code: str, api_key: str):
         self.country_code = country_code

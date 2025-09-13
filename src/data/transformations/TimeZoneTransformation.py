@@ -2,7 +2,10 @@ import pandas as pd
 import numpy as np
 from rich import print
 
-class TimeZoneTransformation:
+from src.data.transformations.BaseTransformation import BaseTransformation
+
+
+class TimeZoneTransformation(BaseTransformation):
 
     def __init__(self, timezone: str, interpolation: str = "linear", gmt_column: bool = True):
         self.timezone = timezone
