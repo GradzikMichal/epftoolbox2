@@ -1,9 +1,13 @@
 [project]
 name = "epf-toolbox-2"
-version = "0.1.0"
+version = "0.0.1"
+authors = [
+    {name="Dawid Linek", email = ""},
+    {name="Michał Gradzik", email = "michalgradzik1000@gmail.com"}
+]
 description = "Open source toolbox for energy market data and forecasting. Very much in progress."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
     "pandas>=2.2.3",
     "python-dateutil>=2.9.0.post0",
@@ -18,3 +22,9 @@ dependencies = [
     "xlsxwriter>=3.2.5",
     "optuna>=4.5.0",
 ]
+license = "GNU AGPLv3"
+license-files = ["LICENCE"]
+classifiers = [
+    'Programming Language :: Python :: 3'
+]
+
