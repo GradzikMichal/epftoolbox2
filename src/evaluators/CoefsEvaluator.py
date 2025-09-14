@@ -68,7 +68,7 @@ class CoefsEvaluator(BaseEvaluator):
             all_dfs.append(result_df)
             
             if i < len(model_names) - 1:
-                separator = pd.DataFrame('', index=result_df.index, 
+                separator = pd.DataFrame('', index=result_df.index_col,
                                          columns=pd.MultiIndex.from_tuples([('|', f'sep_{i}')]))
                 all_dfs.append(separator)
         

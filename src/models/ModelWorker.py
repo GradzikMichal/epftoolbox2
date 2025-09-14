@@ -19,7 +19,7 @@ class ModelWorker:
         sharedMemory.close()
         del context['internalParams']
         return  {
-            "date": str(np.datetime_as_string(test.index.values[0], unit='D')),
+            "date": str(np.datetime_as_string(test.index_col.values[0], unit='D')),
             **context,
             "prediction": prediction,
             "value": float(test[context['target']].iloc[0]),
@@ -31,7 +31,7 @@ class ModelWorker:
     def getDataFromSharedMemory(inMemoryData):
         sharedMemory = shared_memory.SharedMemory(name=inMemoryData['pointer'])
         sharedArray = np.ndarray(inMemoryData['shape'], dtype=inMemoryData['dtype'], buffer=sharedMemory.buf)
-        data = pd.DataFrame(sharedArray, index=inMemoryData['index'], columns=inMemoryData['columns'])
+        data = pd.DataFrame(sharedArray, index=inMemoryData['index_col'], columns=inMemoryData['columns'])
         return data, sharedMemory
         
     

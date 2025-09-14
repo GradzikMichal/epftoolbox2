@@ -64,9 +64,9 @@ class MaeEvaluator(BaseEvaluator):
         try:
             all_dfs, model_names = [], list(results_dict.keys())
             if not model_names: return
-            ref_index = pd.DataFrame.from_dict(results_dict[model_names[0]], orient='index').index
+            ref_index = pd.DataFrame.from_dict(results_dict[model_names[0]], orient='index_col').index
             for i, name in enumerate(model_names):
-                df = pd.DataFrame.from_dict(results_dict[name], orient='index')
+                df = pd.DataFrame.from_dict(results_dict[name], orient='index_col')
                 df.columns = pd.MultiIndex.from_product([[name], df.columns])
                 all_dfs.append(df)
                 if i < len(model_names) - 1:
