@@ -7,6 +7,11 @@ from src.data.transformations.BaseTransformation import BaseTransformation
 
 
 class CalendarTransformation(BaseTransformation):
+    """
+    test
+    :param country_code: The start date of the data in format YYYY-MM-DD e.g. '2020-01-01'.
+    :type country_code: str
+    """
 
     def __init__(self, country_code: str, weekly_dummies: Optional[str] = 'one-hot', monthly_dummies: Optional[str] = None,quarterly_dummies: Optional[str] = None, holidays: Optional[str] = 'exists'):
 
@@ -31,39 +36,39 @@ class CalendarTransformation(BaseTransformation):
             if self.weekly_dummies == 'one-hot':
                 days = ['is_monday', 'is_tuesday', 'is_wednesday', 'is_thursday', 'is_friday', 'is_saturday', 'is_sunday']
                 for i, day_name in enumerate(days):
-                    data[day_name] = (data.index.dayofweek == i).astype(int)
+                    data[day_name] = (data.index_col.dayofweek == i).astype(int)
             elif self.weekly_dummies == 'list':
-                data['weekday'] = data.index.day_name()
+                data['weekday'] = data.index_col.day_name()
             elif self.weekly_dummies == 'number':
-                data['weekday'] = data.index.dayofweek + 1
+                data['weekday'] = data.index_col.dayofweek + 1
 
         if self.monthly_dummies is not None:
             self.progress.console.log("[dim]Processing monthly dummies")
             if self.monthly_dummies == 'one-hot':
                 months = ['is_january', 'is_february', 'is_march', 'is_april', 'is_may', 'is_june', 'is_july', 'is_august', 'is_september', 'is_october', 'is_november', 'is_december']
                 for i, month_name in enumerate(months):
-                    data[month_name] = (data.index.month == i + 1).astype(int)
+                    data[month_name] = (data.index_col.month == i + 1).astype(int)
             elif self.monthly_dummies == 'list':
-                data['month'] = data.index.month_name()
+                data['month'] = data.index_col.month_name()
             elif self.monthly_dummies == 'number':
-                data['month'] = data.index.month
+                data['month'] = data.index_col.month
 
         if self.quarterly_dummies is not None:
             self.progress.console.log("[dim]Processing quarterly dummies")
             if self.quarterly_dummies == 'one-hot':
                 quarters = ['is_q1', 'is_q2', 'is_q3', 'is_q4']
                 for i, quarter_name in enumerate(quarters):
-                    data[quarter_name] = (data.index.quarter == i + 1).astype(int)
+                    data[quarter_name] = (data.index_col.quarter == i + 1).astype(int)
             elif self.quarterly_dummies == 'list':
-                data['quarter'] = data.index.quarter
+                data['quarter'] = data.index_col.quarter
             elif self.quarterly_dummies == 'number':
-                data['quarter'] = data.index.quarter
+                data['quarter'] = data.index_col.quarter
 
         self.progress.update(task,advance=1)
 
         if self.holidays is not None:
             self.progress.console.log("[dim]Processing holidays")
-            holiday_names = data.index.to_series().apply(lambda x: self.country_holidays.get(x))
+            holiday_names = data.index_col.to_series().apply(lambda x: self.country_holidays.get(x))
 
             if self.holidays == 'exists':
                 data['is_holiday'] = (holiday_names.notna()).astype(int)
@@ -75,7 +80,7 @@ class CalendarTransformation(BaseTransformation):
                 data['holiday_name'] = holiday_names.fillna('')
 
         # data.set_index('datetime', inplace=True)
-        # data.index.name="datetime"
+        # data.index_col.name="datetime"
         self.progress.update(task,advance=1)
         self.progress.console.log("[green]Calendar data added successfully")
         self.progress.stop()

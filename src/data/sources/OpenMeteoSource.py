@@ -94,7 +94,7 @@ class OpenMeteoSource(BaseSource):
         
         self.progress.console.log("[dim]Postprocessing Open Meteo")
 
-        weather = pd.DataFrame.from_dict(weather, orient='index')
+        weather = pd.DataFrame.from_dict(weather, orient='index_col')
         weather.index.name = "datetime"
         weather.index = pd.to_datetime(weather.index).tz_localize('UTC')
         if self.prefix:

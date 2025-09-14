@@ -75,16 +75,16 @@ class MLPModel(BaseModel):
         if type(self.internalParams.get('hyperparamOptimization'))==int:
             study = optuna.create_study()
             objective = partial(MLPModel.optimizationObjective,
-                                 horizon=horizon,
-                                 data=data,
-                                 testPeriodStart=data[data['day'] == datasetOffset-self.internalParams.get('hyperparamOptimization')].index[0].strftime('%Y-%m-%d'),
-                                 testPeriodEnd=testPeriodStart,
-                                 target=target,
-                                 predictors=self.predictors,
-                                 trainingWindow=self.trainingWindow,
-                                 modelParams=self.modelParams,
-                                 name=self.name
-                                 )
+                                horizon=horizon,
+                                data=data,
+                                testPeriodStart=data[data['day'] == datasetOffset-self.internalParams.get('hyperparamOptimization')].index_col[0].strftime('%Y-%m-%d'),
+                                testPeriodEnd=testPeriodStart,
+                                target=target,
+                                predictors=self.predictors,
+                                trainingWindow=self.trainingWindow,
+                                modelParams=self.modelParams,
+                                name=self.name
+                                )
             self.internalParams['hyperparamOptimization']=False
             study.optimize(objective, n_trials=1,n_jobs=1)
             self.modelParams = study.best_params

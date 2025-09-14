@@ -37,8 +37,8 @@ class BaseModel(ABC):
         for i in range(1, horizon + 1):
             data[f"{target}_d+{i}"] = data[target].shift(-24 * i)
         data["numeric_index"] = np.arange(1, len(data) + 1)
-        data.index = pd.to_datetime(data.index)
-        data["hour"] = data.index.hour
+        data.index_col = pd.to_datetime(data.index_col)
+        data["hour"] = data.index_col.hour
         data[f"ones"] = 1
         data["day"] = data["numeric_index"] // 24
         return data
@@ -89,7 +89,7 @@ class BaseModel(ABC):
                         "pointer": shm.name,
                         "shape": shape,
                         "dtype": dtype,
-                        "index": data.index,
+                        "index_col": data.index_col,
                         "columns": data.columns,
                     }
                     tasks.append(
