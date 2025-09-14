@@ -35,4 +35,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest-cov
-        coverage run --source=. -m py.test
+        pytest --cov=src tests/

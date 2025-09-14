@@ -3,7 +3,7 @@ import pydantic
 import pytest
 from src.data.sources.CsvSource import CsvSource
 
-file_path_good_file = "../files/test_data.csv"
+file_path_good_file = "../../files/test_data.csv"
 file_path_bad_file = "tests/files/test.csv"
 
 
