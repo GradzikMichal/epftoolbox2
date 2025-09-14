@@ -14,16 +14,22 @@ import os
 # os.environ["MAX_THREADS"] = 128 #by default all cores in the system
 
 if __name__ == "__main__":
-    pipeline = DataPipeline("2023-01-01", "2025-08-20")
+    pipeline = DataPipeline(
+        "2023-01-01",
+        "2025-08-20",
+        sources=[
+            EntsoeSource("PL", "API_KEY"),
+            OpenMeteoSource(52.2298, 21.0118, columns=["temperature_2m", "precipitation", "cloud_cover"], horizon=7)
+        ],
+        transformations=[
+            TimeZoneTransformation(timezone="Europe/Warsaw"),
+            CalendarTransformation("PL"),
+            LagTransformation(columns=["load"], lags=range(0, 8), type="day"),
+            LagTransformation(columns=CalendarTransformation.weekly_dummies, lags=[-1, -2, -3, -4, -5, -6, -7],
+                              type="day")
+        ]
+    )
 
-    pipeline.add_source(EntsoeSource("PL", "API_KEY"))
-    pipeline.add_source(OpenMeteoSource(52.2298, 21.0118, columns=["temperature_2m", "precipitation", "cloud_cover"], horizon=7))
-
-    pipeline.add_transformation(TimeZoneTransformation(timezone="Europe/Warsaw"))
-
-    pipeline.add_transformation(CalendarTransformation("PL"))
-    pipeline.add_transformation(LagTransformation(columns=["load"], lags=range(0, 8), type="day"))
-    pipeline.add_transformation(LagTransformation(columns=CalendarTransformation.weekly_dummies, lags=[-1, -2, -3, -4, -5, -6, -7], type="day"))
 
     data = pipeline.execute("example_dataset")  # if you don't want cache just remove the cache key or remove the example_cache.csv file
 

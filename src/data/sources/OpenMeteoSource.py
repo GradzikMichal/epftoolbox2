@@ -4,7 +4,10 @@ import requests
 from rich.progress import Progress
 from time import sleep
 
-class OpenMeteoSource():
+from src.data.sources.BaseSource import BaseSource
+
+
+class OpenMeteoSource(BaseSource):
     columns = [
         "temperature_2m",
         "rain",

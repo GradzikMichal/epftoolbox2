@@ -3,7 +3,10 @@ import holidays as holidaysLib
 from typing import Optional
 from rich.progress import Progress
 
-class CalendarTransformation():
+from src.data.transformations.BaseTransformation import BaseTransformation
+
+
+class CalendarTransformation(BaseTransformation):
 
     def __init__(self, country_code: str, weekly_dummies: Optional[str] = 'one-hot', monthly_dummies: Optional[str] = None,quarterly_dummies: Optional[str] = None, holidays: Optional[str] = 'exists'):
 

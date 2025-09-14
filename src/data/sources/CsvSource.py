@@ -2,7 +2,10 @@ import pandas as pd
 from entsoe import EntsoePandasClient
 from rich.progress import Progress
 
-class CsvSource():
+from src.data.sources.BaseSource import BaseSource
+
+
+class CsvSource(BaseSource):
 
     def __init__(self, path: str, index: str):
         self.path = path

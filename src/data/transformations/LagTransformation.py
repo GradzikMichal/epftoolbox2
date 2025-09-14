@@ -2,7 +2,10 @@ import pandas as pd
 import numpy as np
 from rich import print
 
-class LagTransformation:
+from src.data.transformations.BaseTransformation import BaseTransformation
+
+
+class LagTransformation(BaseTransformation):
 
     def __init__(self, columns= [], lags=[], type='day'):
         self.columns = columns
