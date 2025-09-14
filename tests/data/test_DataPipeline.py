@@ -1,6 +1,6 @@
 import pydantic
 import pytest
-from src.data.DataPipeline import DataPipeline
+from data.DataPipeline import DataPipeline
 
 
 def test_data_pipeline_creation_without_args():
