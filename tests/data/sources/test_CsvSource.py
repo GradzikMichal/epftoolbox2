@@ -13,17 +13,17 @@ def test_csv_source_without_args():
 
 
 def test_csv_source_with_correct_required_args():
-    csvSource = CsvSource(path="path/to/file.csv", index_col="index")
+    csvSource = CsvSource(file_path="path/to/file.csv", index_col="index")
     assert csvSource
 
 
 def test_csv_source_with_correct_all_args():
-    csvSource = CsvSource(path="path/to/file.csv", index_col="index", date_col="datetime")
+    csvSource = CsvSource(file_path="path/to/file.csv", index_col="index", date_col="datetime")
     assert csvSource
 
 
 def test_csv_source_immutable_fields():
-    csvSource = CsvSource(path="path/to/file.csv", index_col="index")
+    csvSource = CsvSource(file_path="path/to/file.csv", index_col="index")
     with pytest.raises(pydantic.ValidationError):
         csvSource.file_path = "new/path/to/file.csv"
     with pytest.raises(pydantic.ValidationError):
@@ -34,17 +34,17 @@ def test_csv_source_immutable_fields():
 
 def test_csv_source_with_incorrect_required_args():
     with pytest.raises(pydantic.ValidationError):
-        CsvSource(path=True, index_col=False)
+        CsvSource(file_path=True, index_col=False)
 
 
 def test_csv_source_fetch_existing_data():
-    csvSource = CsvSource(path=file_path_good_file, index_col="datetime")
+    csvSource = CsvSource(file_path=file_path_good_file, index_col="datetime")
     data = csvSource.fetch_data()
     assert pd.DataFrame == type(data)
 
 
 def test_csv_source_fetch_non_existing_data(capfd):
-    csvSource = CsvSource(path=file_path_bad_file, index_col="datetime")
+    csvSource = CsvSource(file_path=file_path_bad_file, index_col="datetime")
     with pytest.raises(SystemExit):
         csvSource.fetch_data()
     out, err = capfd.readouterr()
@@ -52,7 +52,7 @@ def test_csv_source_fetch_non_existing_data(capfd):
 
 
 def test_csv_source_fetch_data_within_date_range_and_date_and_index_col_are_the_same():
-    csvSource = CsvSource(path=file_path_good_file, index_col="datetime", date_col="datetime")
+    csvSource = CsvSource(file_path=file_path_good_file, index_col="datetime", date_col="datetime")
     data = csvSource.fetch_data_within_date_range(start_date="2023-01-01 01:00:00", end_date="2023-01-01 03:00:00")
     assert pd.DataFrame == type(data)
     assert data.index[0] == pd.Timestamp("2023-01-01 01:00:00")
@@ -60,7 +60,7 @@ def test_csv_source_fetch_data_within_date_range_and_date_and_index_col_are_the_
 
 
 def test_csv_source_fetch_data_within_date_range_and_date_and_index_col_are_different():
-    csvSource = CsvSource(path=file_path_good_file, index_col=None, date_col="datetime")
+    csvSource = CsvSource(file_path=file_path_good_file, index_col=None, date_col="datetime")
     data = csvSource.fetch_data_within_date_range(start_date="2023-01-01 01:00:00", end_date="2023-01-01 03:00:00")
     assert pd.DataFrame == type(data)
     assert data["datetime"][data.index[0]] == "2023-01-01 01:00:00"
@@ -68,6 +68,6 @@ def test_csv_source_fetch_data_within_date_range_and_date_and_index_col_are_diff
 
 
 def test_csv_source_fetch_data_within_date_range_wrong_date_col():
-    csvSource = CsvSource(path=file_path_good_file, index_col="datetime")
+    csvSource = CsvSource(file_path=file_path_good_file, index_col="datetime")
     with pytest.raises(KeyError):
         csvSource.fetch_data_within_date_range(start_date="2023-01-01 01:00:00", end_date="2023-01-01 03:00:00")

@@ -13,14 +13,14 @@ class CsvSource(BaseSource, BaseModel):
     :param file_path: The path to the csv file e.g. `'path/to/file.csv'`
     :type file_path: str
     :param index_col: The index_col of the csv file e.g. `'index_col'`. If None index column is chosen automatically.
-    :type index_col: Hashable | None
+    :type index_col: str | int | None
     :param date_col: The name of the column in the csv file e.g. `'date'`. Default is `'date'`
     :type date_col: str
     """
     model_config = ConfigDict(use_attribute_docstrings=True)
     file_path: str = Field(strict=True, frozen=True, examples=["path/to/file.csv"],
                            description="The path to the csv file e.g. `'path/to/file.csv'`")
-    index_col: Hashable | None = Field(strict=True, frozen=True, examples=['date'],
+    index_col: str | int | None = Field(frozen=True, examples=['date'],
                                   description="The index_col of the csv file e.g. `'index_col'`")
     date_col: str | None = Field(strict=True, frozen=True, examples=['date'],
                                  description="The name of the column in the csv file e.g. `'date'`")
@@ -54,7 +54,7 @@ class CsvSource(BaseSource, BaseModel):
         :return: Pandas DataFrame with data within given daterange.
         :rtype: pd.DataFrame
         """
-        data = self._fetch_data()
+        data = self.fetch_data()
         if self.date_col == self.index_col:
             data = data[(data.index >= start_date) & (data.index <= end_date)]
         else:

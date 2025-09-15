@@ -43,4 +43,4 @@ def test_data_pipeline_get_data_no_file(capfd):
     with pytest.raises(SystemExit):
         pipeline.get_data(use_saved=True, file_path="missing")
     out, err = capfd.readouterr()
-    assert out == "[Errno 2] No such file or directory: 'missing'\nError while reading cached file! File not found\n"
+    assert out == "[Errno 2] No such file or directory: 'missing'\n[red]Error while reading file! File not found[/red]\n"
