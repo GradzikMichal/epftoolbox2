@@ -1,7 +1,8 @@
 import pandas as pd
+
+from .sources.CsvSource import CsvSource
 from ..data.transformations.BaseTransformation import BaseTransformation
 from ..data.sources.BaseSource import BaseSource
-from rich import print
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -43,25 +44,20 @@ class DataPipeline(BaseModel):
         transformations = transformations if transformations is not None else []
         super().__init__(start_date=start_date, end_date=end_date, sources=sources, transformations=transformations)
 
-    def get_data(self, use_saved: bool = False, file_name: str = None) -> pd.DataFrame:
+    def get_data(self, use_saved: bool = False, file_path: str = None) -> pd.DataFrame:
         """
             Function which fetches data from data source or uses saved data if available.
-            :param use_saved: Whether to used save data or not. Used with `file_name`.
+            :param use_saved: Whether to used save data or not. Used with `file_name`. Sources are omitted if `use_saved` is True and `file_path` is provided. Defaults to False.
             :type use_saved: bool
-            :param file_name: The name of the file to load the data from or save the data to.
-            :type file_name: str
+            :param file_path: The name of the file to load the data from or save the data to.
+            :type file_path: str
             :return: A dataframe containing the data from the data source.
         """
-        if use_saved and file_name is not None:
-            try:
-                return pd.read_csv(f'{file_name}', index_col=0)
-            except FileNotFoundError as e:
-                print(e)
-                print("[red]Error while reading cached file! File not found[/red]")
-                exit(1)
+        if use_saved and file_path is not None:
+            CsvSource(file_path=file_path, index_col=0).fetch_data()
         data = pd.DataFrame()
-        for source in self.__sources:
-            df = source.fetch(self.__start_date, self.__end_date)
+        for source in self.sources:
+            df = source.fetch_data_within_date_range(self.start_date, self.end_date)
             data = pd.merge(data, df, left_index=True, right_index=True, how='outer')
         return data
 
@@ -72,7 +68,7 @@ class DataPipeline(BaseModel):
             :type data: pd.DataFrame
             :return: A dataframe containing the transformed data.
         """
-        for transformation in self.__transformations:
+        for transformation in self.transformations:
             data = transformation.transform(data)
         return data
 
@@ -88,10 +84,9 @@ class DataPipeline(BaseModel):
         :type file_name: str
         :return: A dataframe containing the transformed data from the sources.
         """
-        data = self.get_data(use_saved=use_saved, file_name=file_name)
+        data = self.get_data(use_saved=use_saved, file_path=file_name)
         data = self.transform_data(data)
 
         if save_data and file_name is not None:
             data.to_csv(f'{file_name}.csv')
-
         return data

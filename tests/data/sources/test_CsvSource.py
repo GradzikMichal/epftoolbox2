@@ -25,7 +25,7 @@ def test_csv_source_with_correct_all_args():
 def test_csv_source_immutable_fields():
     csvSource = CsvSource(path="path/to/file.csv", index_col="index")
     with pytest.raises(pydantic.ValidationError):
-        csvSource.path = "new/path/to/file.csv"
+        csvSource.file_path = "new/path/to/file.csv"
     with pytest.raises(pydantic.ValidationError):
         csvSource.index_col = "new_index"
     with pytest.raises(pydantic.ValidationError):
