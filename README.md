@@ -13,7 +13,17 @@ uv run example.py
 ```
 
 ### PIP way
-Run `pip install -r requirements.txt` and then `python example.py`
+Before installation of required packages create virtual environment (venv). <br>
+`python -m venv .venv` after this command run<br>
+**For Windows**: `./.venv/Scripts/activate`<br>
+**For Linux**: `source .venv/bin/activare`<br> <br>
+Then run `pip install -r requirements.txt` and then `python example.py`
+
+## Testing
+To run tests included in `/tests` folder run
+`python -m coverage run -m pytest` <br>
+For more specific tests results run `python -m coverage report -m`
+
 ## Sources
 
 ### Entsoe Source
