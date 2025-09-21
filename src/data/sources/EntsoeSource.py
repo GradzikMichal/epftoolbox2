@@ -15,7 +15,7 @@ class EntsoeSource(BaseSource, BaseModel):
         :type api_key: str
     """
 
-    model_config = ConfigDict(use_attribute_docstrings=True)
+    model_config = ConfigDict(use_attribute_docstrings=True, arbitrary_types_allowed=True)
     country_code: str = Field(strict=True, frozen=True, examples=["DE", "PL"],
                               description="Country code e.g. `'DE', 'PL'`")
     api_key: str = Field(strict=True, frozen=True, description="The api key for Entsoe API", )
