@@ -1,4 +1,5 @@
 from unittest import mock
+import logging
 
 import pandas as pd
 import pydantic
@@ -23,11 +24,10 @@ def test_entsoe_source_creation_wrong_args():
         EntsoeSource(country_code="PL", api_key=True)
 
 
-@pytest.fixture(scope="module")
 @mock.patch("src.data.sources.EntsoeSource.EntsoeSource._fetch_load_within_date_range")
 @mock.patch("src.data.sources.EntsoeSource.EntsoeSource._fetch_price_within_date_range")
 @mock.patch("src.data.sources.EntsoeSource.EntsoeSource._combining_load_and_price")
-def test_entsoe_fetch_working(fetch_load_mock, fetch_price_mock, combining_load_and_price_mock, ):
+def test_entsoe_fetch_working(fetch_load_mock, fetch_price_mock, combining_load_and_price_mock):
     entsoe_source = EntsoeSource(country_code="PL", api_key="test_api")
     entsoe_source.fetch_data_within_date_range(start_date="2020-01-01", end_date="2020-02-01")
     fetch_load_mock.assert_called_once()
@@ -35,7 +35,9 @@ def test_entsoe_fetch_working(fetch_load_mock, fetch_price_mock, combining_load_
     combining_load_and_price_mock.assert_called_once()
 
 
-@pytest.fixture(scope="module")
+
+
+
 @mock.patch("entsoe.EntsoePandasClient.query_load")
 def test_entsoe_fetch_load_within_date_range(query_load_mock):
     entsoe_source = EntsoeSource(country_code="PL", api_key="test_api")
@@ -43,12 +45,12 @@ def test_entsoe_fetch_load_within_date_range(query_load_mock):
     query_load_mock.assert_called_once()
 
 
-@pytest.fixture(scope="module")
+
 @mock.patch("entsoe.EntsoePandasClient.query_day_ahead_prices")
-def test_entsoe_fetch_price_within_date_range(query_price_mock):
+def test_entsoe_fetch_price_within_date_range(day_ahead_mock):
     entsoe_source = EntsoeSource(country_code="PL", api_key="test_api")
     entsoe_source._fetch_price_within_date_range(start_date="2020-01-01", end_date="2020-02-01")
-    query_price_mock.assert_called_once()
+    day_ahead_mock.assert_called_once()
 
 
 def test_entsoe_combining_load_and_price():

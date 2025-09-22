@@ -62,3 +62,11 @@ def test_data_pipeline_get_data_from_sources(entsoe_mock, csv_mock, merge_mock):
     csv_mock.assert_called_once()
     assert (merge_mock.call_count == 2)
     assert isinstance(result, pd.DataFrame)
+
+
+
+def test_data_pipeline_get_data_from_source_entsoe():
+    pipeline = DataPipeline(start_date="2020-01-01", end_date="2020-02-01", sources=[])
+    result = pipeline.get_data()
+    assert isinstance(result, pd.DataFrame)
+    assert pd.DataFrame.empty
