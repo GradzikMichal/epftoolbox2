@@ -1,14 +1,7 @@
 from unittest import mock
-
-import niquests
-import openmeteo_requests
 import pytest
 import requests
-import urllib3.response
-from openmeteo_sdk.WeatherApiResponse import WeatherApiResponse
-
 from src.data.sources.OpenMeteoSource import OpenMeteoSource
-from openmeteo_requests.Client import _process_response
 
 
 def test_open_meteo_object_creation_good_args_and_place_name():
@@ -57,6 +50,7 @@ def test_creating_api_params():
     assert params["end_date"] == "12-01-2021"
     assert params["hourly"] == ["temperature_2m_previous_day" + str(i) for i in range(1, 8)]
 
+
 def test_fetch_data_within_date_range_bad_dates(capfd):
     open_meteo_object = OpenMeteoSource(columns=["temperature_2m"], weather_model="jma_seamless",
                                         prediction_horizon=7, place_name="Berlin")
@@ -65,6 +59,7 @@ def test_fetch_data_within_date_range_bad_dates(capfd):
         open_meteo_object.fetch_data_within_date_range(start_date="asdad", end_date="20-01-2020")
     out, err = capfd.readouterr()
     assert out == "Error parsing start or end date. Check dates!\n"
+
 
 @mock.patch("openmeteo_requests.Client.Client.weather_api")
 @mock.patch("src.data.sources.OpenMeteoSource.OpenMeteoSource._process_open_meteo_responses")
@@ -80,5 +75,3 @@ def test_fetch_data():
     open_meteo_object = OpenMeteoSource(columns=["temperature_2m"], weather_model="jma_seamless",
                                         prediction_horizon=7, place_name="Berlin")
     assert open_meteo_object.fetch_data() is None
-
-
