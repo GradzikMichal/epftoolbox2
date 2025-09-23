@@ -1,4 +1,6 @@
+
 from src.data.DataPipeline import DataPipeline
+from src.data.sources.CsvSource import CsvSource
 from src.data.sources.OpenMeteoSource import OpenMeteoSource
 from src.data.sources.EntsoeSource import EntsoeSource
 from src.data.transformations.CalendarTransformation import CalendarTransformation
@@ -14,12 +16,17 @@ import os
 # os.environ["MAX_THREADS"] = 128 #by default all cores in the system
 
 if __name__ == "__main__":
+
+
+
+
     pipeline = DataPipeline(
         "2023-01-01",
         "2025-08-20",
         sources=[
-            EntsoeSource("PL", "API_KEY"),
-            OpenMeteoSource(52.2298, 21.0118, columns=["temperature_2m", "precipitation", "cloud_cover"], horizon=7)
+            CsvSource("example_data.csv", None, date_col="datetime")
+            # EntsoeSource("PL", "API_KEY"),
+            # OpenMeteoSource(52.2298, 21.0118, columns=["temperature_2m", "precipitation", "cloud_cover"], horizon=7)
         ],
         transformations=[
             TimeZoneTransformation(timezone="Europe/Warsaw"),
@@ -31,7 +38,7 @@ if __name__ == "__main__":
     )
 
 
-    data = pipeline.execute("example_dataset")  # if you don't want cache just remove the cache key or remove the example_cache.csv file
+    data = pipeline.get_data()  # if you don't want cache just remove the cache key or remove the example_cache.csv file
 
     pipeline = EvaluatorPipeline(data, "2024-08-01", "2025-08-01", "load", horizon=7)
     
