@@ -10,5 +10,4 @@ def test_fetch_data():
         pass
 
     base = DummySource()
-    assert base.fetch_data() is None
     assert base.fetch_data_within_date_range("", "") is None

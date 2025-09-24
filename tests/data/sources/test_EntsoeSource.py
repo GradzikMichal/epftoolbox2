@@ -59,8 +59,3 @@ def test_entsoe_combining_load_and_price():
     price = pd.Series([1, 2], name="price")
     merged = entsoe_source._combining_load_and_price(load, price)
     assert isinstance(merged, pd.DataFrame)
-
-
-def test_fetch_data():
-    entsoe_source = EntsoeSource(country_code="PL", api_key="test_api")
-    assert entsoe_source.fetch_data() is None

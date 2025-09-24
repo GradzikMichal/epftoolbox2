@@ -113,6 +113,3 @@ class EntsoeSource(BaseSource, BaseModel):
         self.progress.update(task, advance=1)
         self.progress.stop()
         return data
-
-    def fetch_data(self) -> pd.DataFrame:
-        pass
