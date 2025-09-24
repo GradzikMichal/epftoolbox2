@@ -70,8 +70,3 @@ def test_fetch_data_within_date_range_good_dates(weather_api_mock, process_respo
     weather_api_mock.assert_called_once()
     process_response_mock.assert_called_once()
 
-
-def test_fetch_data():
-    open_meteo_object = OpenMeteoSource(columns=["temperature_2m"], weather_model="jma_seamless",
-                                        prediction_horizon=7, place_name="Berlin")
-    assert open_meteo_object.fetch_data() is None

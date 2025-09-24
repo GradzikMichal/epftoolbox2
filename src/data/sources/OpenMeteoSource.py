@@ -148,6 +148,3 @@ class OpenMeteoSource(BaseSource, BaseModel):
         self.progress.console.log("[green]Response processed successfully")
         self.progress.update(task, advance=1)
         return processed_response
-
-    def fetch_data(self) -> pd.DataFrame:
-        pass
