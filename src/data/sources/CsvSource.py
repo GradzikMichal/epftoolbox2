@@ -2,7 +2,7 @@ from typing import Hashable
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
-
+from dateutil.parser import parse, ParserError
 from .BaseSource import BaseSource
 
 
@@ -54,6 +54,12 @@ class CsvSource(BaseSource, BaseModel):
         :return: Pandas DataFrame with data within given daterange.
         :rtype: pd.DataFrame
         """
+        try:
+            parse(start_date)
+            parse(end_date)
+        except ParserError:
+            print("Error parsing start or/and end date. Check dates!")
+            exit(1)
         data = self.fetch_data()
         if self.date_col == self.index_col:
             data = data[(data.index >= start_date) & (data.index <= end_date)]
