@@ -50,22 +50,47 @@ class CalendarTransformation(BaseTransformation, BaseModel):
         )
 
     def _create_is_list(self, names_list: Sequence[str]) -> list[str]:
+        """
+            Function for appending a string to the list of strings.
+            :param names_list: List of strings to append.
+            :type names_list: Sequence[str]
+            :return: List of appended strings.
+            :rtype: list[str]
+        """
         return ["is_" + name for name in names_list]
 
     def _transform_template(
             self,
             data: pd.DataFrame,
-            dummy_type: __dummies_type = None,
-            one_hot_list: list[str] | None = None,
+            dummy_type: __dummies_type,
+            one_hot_list: list[str] | Sequence[str] | None = None,
             comparison_data: pd.Series | None = None,
             column_name: str | None = None,
             list_column_data: pd.Series | None = None,
             number_column_data: pd.Series | None = None,
     ) -> pd.DataFrame:
-
+        """
+            Private function for adding column/columns containing additional information.
+            :param data: User data to be transformed.
+            :type data: pd.DataFrame
+            :param dummy_type: Type of transformation.
+            :type dummy_type: __dummies_type
+            :param one_hot_list: List of columns name for `one-hot transformation`. Optional.
+            :type one_hot_list: list[str]
+            :param comparison_data: Data used for `one-hot transformation`. Optional.
+            :type comparison_data: pd.Series
+            :param column_name: Name of additional column. Used for `list and number transformation`. Optional.
+            :type column_name: str
+            :param list_column_data: Data used for `list transformation`. Optional.
+            :type list_column_data: pd.Series
+            :param number_column_data: Data used for `number transformation`. Optional.
+            :type number_column_data: pd.Series
+            :return: Returns pandas DataFrane with added columns.
+            :rtype: pd.DataFrame
+        """
         match dummy_type:
             case "one-hot":
-                for i, one_hot_name in enumerate(one_hot_list):
+                for i, one_hot_name in enumerate(self._create_is_list(one_hot_list)):
                     data[one_hot_name] = (comparison_data == i + 1).astype(int)
             case 'list':
                 data[column_name] = list_column_data
@@ -76,6 +101,13 @@ class CalendarTransformation(BaseTransformation, BaseModel):
         return data
 
     def _transform_holidays(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+            Adding column/columns containing information about the holidays.
+            :param data: User data to be transformed.
+            :type data: pd.DataFrame
+            :return: Returns pandas DataFrane with added columns.
+            :rtype: pd.DataFrame
+        """
         holiday_names: pd.Series = data.index.to_series().apply(
             lambda x: holidays.country_holidays(self.country_code).get(x))
         match self.holidays_dummies:
@@ -105,8 +137,9 @@ class CalendarTransformation(BaseTransformation, BaseModel):
         data = self._transform_template(
             data=data,
             dummy_type=self.weekly_dummies,
-            one_hot_list=self._create_is_list(calendar.day_name),
+            one_hot_list=calendar.day_name,
             comparison_data=data.index.dayofweek + 1,
+            column_name="weekday",
             list_column_data=data.index.day_name(),
             number_column_data=data.index.dayofweek + 1
         )
@@ -115,8 +148,9 @@ class CalendarTransformation(BaseTransformation, BaseModel):
         data = self._transform_template(
             data=data,
             dummy_type=self.monthly_dummies,
-            one_hot_list=self._create_is_list(calendar.month_name),
+            one_hot_list=calendar.month_name,
             comparison_data=data.index.month,
+            column_name="month",
             list_column_data=data.index.month_name(),
             number_column_data=data.index.month
         )
@@ -127,6 +161,7 @@ class CalendarTransformation(BaseTransformation, BaseModel):
             dummy_type=self.quarterly_dummies,
             one_hot_list=['is_q1', 'is_q2', 'is_q3', 'is_q4'],
             comparison_data=data.index.quarter,
+            column_name="quarter",
             list_column_data=data.index.quarter,
             number_column_data=data.index.quarter
         )
