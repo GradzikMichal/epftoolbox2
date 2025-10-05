@@ -76,7 +76,7 @@ def test_calendar_transformation_transform_holiday_dummies_one_hot():
     good_data_columns = good_data.columns
     assert len(transformed_data_columns) != len(good_data_columns)
     assert len(transformed_data_columns) == len(good_data_columns) + 1
-    assert "is_nowy_rok" in transformed_data_columns
+    assert "is_new_year's_day" in transformed_data_columns
 
 def test_calendar_transformation_transform_holiday_dummies_list():
     transformer = CalendarTransformation(country_code="PL", holidays_dummies="list")

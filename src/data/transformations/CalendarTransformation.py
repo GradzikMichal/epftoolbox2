@@ -109,7 +109,7 @@ class CalendarTransformation(BaseTransformation, BaseModel):
         """
         if self.holidays_dummies is not None:
             holiday_names: pd.Series = data.index.to_series().apply(
-                lambda x: holidays.country_holidays(self.country_code).get(x))
+                lambda x: holidays.country_holidays(self.country_code, language="en_US").get(x))
             match self.holidays_dummies:
                 case "one-hot":
                     unique_holidays = holiday_names.dropna().unique()
