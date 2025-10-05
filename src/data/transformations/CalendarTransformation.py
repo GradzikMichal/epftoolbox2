@@ -88,16 +88,15 @@ class CalendarTransformation(BaseTransformation, BaseModel):
             :return: Returns pandas DataFrane with added columns.
             :rtype: pd.DataFrame
         """
-        match dummy_type:
-            case "one-hot":
-                for i, one_hot_name in enumerate(self._create_is_list(one_hot_list)):
-                    data[one_hot_name] = (comparison_data == i + 1).astype(int)
-            case 'list':
-                data[column_name] = list_column_data
-            case "number":
-                data[column_name] = number_column_data
-            case None:
-                pass
+        if dummy_type is not None:
+            match dummy_type:
+                case "one-hot":
+                    for i, one_hot_name in enumerate(self._create_is_list(one_hot_list)):
+                        data[one_hot_name] = (comparison_data == i + 1).astype(int)
+                case 'list':
+                    data[column_name] = list_column_data
+                case "number":
+                    data[column_name] = number_column_data
         return data
 
     def _transform_holidays(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -108,19 +107,18 @@ class CalendarTransformation(BaseTransformation, BaseModel):
             :return: Returns pandas DataFrane with added columns.
             :rtype: pd.DataFrame
         """
-        holiday_names: pd.Series = data.index.to_series().apply(
-            lambda x: holidays.country_holidays(self.country_code).get(x))
-        match self.holidays_dummies:
-            case "one-hot":
-                unique_holidays = holiday_names.dropna().unique()
-                for holiday in unique_holidays:
-                    data[f"is_{holiday.lower().replace(' ', '_')}"] = (holiday_names == holiday).astype(int)
-            case 'list':
-                data['holiday_name'] = holiday_names.fillna('')
-            case "number":
-                data['is_holiday'] = (holiday_names.notna()).astype(int)
-            case None:
-                pass
+        if self.holidays_dummies is not None:
+            holiday_names: pd.Series = data.index.to_series().apply(
+                lambda x: holidays.country_holidays(self.country_code).get(x))
+            match self.holidays_dummies:
+                case "one-hot":
+                    unique_holidays = holiday_names.dropna().unique()
+                    for holiday in unique_holidays:
+                        data[f"is_{holiday.lower().replace(' ', '_')}"] = (holiday_names == holiday).astype(int)
+                case 'list':
+                    data['holiday_name'] = holiday_names.fillna('')
+                case "number":
+                    data['is_holiday'] = (holiday_names.notna()).astype(int)
         return data
 
     def transform(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -144,7 +142,6 @@ class CalendarTransformation(BaseTransformation, BaseModel):
             number_column_data=data.index.dayofweek + 1
         )
         self.progress.update(task, advance=1)
-
         data = self._transform_template(
             data=data,
             dummy_type=self.monthly_dummies,
