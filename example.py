@@ -19,7 +19,8 @@ if __name__ == "__main__":
 
 
 
-
+    a = "_".exec("join(['asd', 'asd,])")
+    print(a)
     pipeline = DataPipeline(
         "2023-01-01",
         "2025-08-20",
